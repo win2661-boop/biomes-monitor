@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIOMES Monitor</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Pretendard', 'Noto Sans KR', Arial, sans-serif;
+      background: linear-gradient(135deg, #061826 0%, #0b2a3d 45%, #0e3a4f 100%);
+      color: #f4fbff;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 48px 20px 28px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4rem);
+      letter-spacing: -1px;
+    }
+
+    header p {
+      margin: 14px auto 0;
+      max-width: 760px;
+      color: #c9e8f3;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .container {
+      width: min(1120px, 94%);
+      margin: 0 auto 50px;
+    }
+
+    .notice {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      line-height: 1.6;
+      color: #d8f4ff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(10px);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.35rem;
+    }
+
+    .card .desc {
+      margin: 0 0 20px;
+      color: #c8e2eb;
+      line-height: 1.55;
+      font-size: 0.94rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #eafaff;
+      font-size: 0.95rem;
+    }
+
+    .hint {
+      font-weight: 400;
+      color: #a9cedb;
+      font-size: 0.82rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(3, 23, 34, 0.65);
+      color: white;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #55d6ff;
+      box-shadow: 0 0 0 3px rgba(85, 214, 255, 0.18);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 20px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 0.98rem;
+    }
+
+    .primary {
+      background: #59d8ff;
+      color: #062131;
+    }
+
+    .secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #f7fdff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .result-wrap {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .result-box {
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      min-height: 150px;
+    }
+
+    .result-box h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .score {
+      font-size: 2rem;
+      font-weight: 900;
+      margin: 6px 0;
+    }
+
+    .level {
+      display: inline-block;
+      margin: 8px 0 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .safe { background: rgba(80, 220, 150, 0.22); color: #8cffc3; }
+    .caution { background: rgba(255, 206, 84, 0.22); color: #ffe083; }
+    .danger { background: rgba(255, 103, 103, 0.22); color: #ff9d9d; }
+
+    .result-box p, .explain p {
+      color: #d6eef6;
+      line-height: 1.55;
+      margin: 0;
+      font-size: 0.92rem;
+    }
+
+    .explain {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      color: #a9cedb;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+
+    th, td {
+      padding: 11px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+      text-align: left;
+      color: #eaf9ff;
+    }
+
+    th {
+      background: rgba(255,255,255,0.12);
+      color: #ffffff;
+    }
+
+    @media (max-width: 860px) {
+      .grid, .result-wrap, .explain {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BIOMES Monitor</h1>
+    <p>인체 항상성의 음성 피드백 원리를 활용한 우주 생명유지 보조 시스템 시뮬레이션</p>
+  </header>
+
+  <main class="container">
+    <section class="notice">
+      <strong>안내:</strong> 이 웹앱은 실제 의료기기가 아니라, 생명과학Ⅰ의 항상성 원리를 <strong>입력값–판단 기준–출력 반응</strong> 구조로 바꾸어 보는 탐구용 시뮬레이션입니다.
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>① 수분 항상성 입력</h2>
+        <p class="desc">신장의 수분 조절과 ADH 작용을 참고하여 수분 부족 가능성을 간접 판단합니다.</p>
+
+        <label>하루 수분 섭취량 <span class="hint">mL / 예: 1800</span></label>
+        <input id="waterIntake" type="number" value="1400" min="0" />
+
+        <label>하루 소변량 <span class="hint">mL / 예: 1200</span></label>
+        <input id="urineVolume" type="number" value="800" min="0" />
+
+        <label>소변 농도 지수 <span class="hint">1~10, 높을수록 진함</span></label>
+        <input id="urineConcentration" type="number" value="8" min="1" max="10" />
+
+        <label>폐수 오염도 지수 <span class="hint">1~10, 높을수록 재처리 필요</span></label>
+        <input id="wasteContamination" type="number" value="7" min="1" max="10" />
+      </div>
+
+      <div class="card">
+        <h2>② 스트레스 항상성 입력</h2>
+        <p class="desc">HPA 축과 코르티솔 음성 피드백 원리를 참고하여 스트레스 과부하 가능성을 판단합니다.</p>
+
+        <label>평균 심박수 <span class="hint">bpm / 예: 75</span></label>
+        <input id="heartRate" type="number" value="92" min="30" />
+
+        <label>수면 시간 <span class="hint">시간 / 예: 7</span></label>
+        <input id="sleepHours" type="number" value="5" min="0" max="24" step="0.5" />
+
+        <label>주관적 스트레스 지수 <span class="hint">1~10, 높을수록 스트레스 큼</span></label>
+        <input id="stressIndex" type="number" value="8" min="1" max="10" />
+
+        <label>활동량 수준</label>
+        <select id="activityLevel">
+          <option value="low">낮음</option>
+          <option value="normal" selected>보통</option>
+          <option value="high">높음</option>
+        </select>
+      </div>
+    </section>
+
+    <div class="buttons">
+      <button class="primary" onclick="analyzeBiomes()">BIOMES 분석 실행</button>
+      <button class="secondary" onclick="loadSafeData()">정상 예시 데이터</button>
+      <button class="secondary" onclick="loadRiskData()">위험 예시 데이터</button>
+      <button class="secondary" onclick="resetData()">초기화</button>
+    </div>
+
+    <section class="result-wrap" id="results">
+      <div class="result-box">
+        <h3>수분 항상성</h3>
+        <div class="score" id="waterScore">-</div>
+        <span class="level safe" id="waterLevel">분석 전</span>
+        <p id="waterAdvice">입력값을 넣고 분석을 실행하세요.</p>
+      </div>
+
+      <div class="result-box">
+        <h3>스트레스 항상성</h3>
+        <div class="score" id="stressScore">-</div>
+        <span class="level safe" id="stressLevel">분석 전</span>
+        <p id="stressAdvice">입력값을 넣고 분석을 실행하세요.</p>
+      </div>
+
+      <div class="result-box">
+        <h3>종합 판단</h3>
+        <div class="score" id="totalScore">-</div>
+        <span class="level safe" id="totalLevel">분석 전</span>
+        <p id="totalAdvice">BIOMES의 감지–판단–반응–재평가 구조가 표시됩니다.</p>
+      </div>
+    </section>
+
+    <section class="explain">
+      <div class="card">
+        <h2>BIOMES 판단 기준</h2>
+        <table>
+          <tr>
+            <th>구분</th>
+            <th>입력값</th>
+            <th>출력 반응</th>
+          </tr>
+          <tr>
+            <td>수분 항상성</td>
+            <td>수분 섭취량, 소변량, 소변 농도, 폐수 오염도</td>
+            <td>수분 보충, 전해질 섭취, 재처리 단계 강화</td>
+          </tr>
+          <tr>
+            <td>스트레스 항상성</td>
+            <td>심박수, 수면 시간, 스트레스 지수, 활동량</td>
+            <td>휴식 알림, 조명 완화, 호흡 안정 활동</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>탐구적 의미</h2>
+        <p>
+          이 시뮬레이션은 신장의 ADH-수분 재흡수 조절과 HPA 축의 스트레스 음성 피드백을 실제로 대체하는 장치가 아닙니다. 인체의 항상성 구조를 공학적으로 단순화하여, 우주 환경에서 어떤 보조 반응을 제안할 수 있는지 보여 주는 개념 모델입니다.
+        </p>
+      </div>
+    </section>
+
+    <p class="footer-note">
+      ※ 본 앱의 점수와 판단 기준은 탐구 발표용 가상 모델입니다. 실제 의학적 진단, 처방, 우주 임무 판단에 사용할 수 없습니다.
+    </p>
+  </main>
+
+  <script>
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function getNumber(id) {
+      return Number(document.getElementById(id).value);
+    }
+
+    function setLevel(elementId, text, className) {
+      const el = document.getElementById(elementId);
+      el.textContent = text;
+      el.className = 'level ' + className;
+    }
+
+    function analyzeBiomes() {
+      const waterIntake = getNumber('waterIntake');
+      const urineVolume = getNumber('urineVolume');
+      const urineConcentration = getNumber('urineConcentration');
+      const wasteContamination = getNumber('wasteContamination');
+
+      const heartRate = getNumber('heartRate');
+      const sleepHours = getNumber('sleepHours');
+      const stressIndex = getNumber('stressIndex');
+      const activityLevel = document.getElementById('activityLevel').value;
+
+      let waterRisk = 0;
+      if (waterIntake < 1200) waterRisk += 35;
+      else if (waterIntake < 1800) waterRisk += 20;
+      else waterRisk += 5;
+
+      if (urineVolume < 700) waterRisk += 25;
+      else if (urineVolume < 1000) waterRisk += 15;
+      else waterRisk += 5;
+
+      waterRisk += clamp((urineConcentration - 4) * 6, 0, 35);
+      waterRisk += clamp((wasteContamination - 5) * 4, 0, 20);
+      waterRisk = clamp(Math.round(waterRisk), 0, 100);
+
+      let stressRisk = 0;
+      if (heartRate > 100) stressRisk += 30;
+      else if (heartRate > 85) stressRisk += 20;
+      else stressRisk += 5;
+
+      if (sleepHours < 5) stressRisk += 30;
+      else if (sleepHours < 7) stressRisk += 18;
+      else stressRisk += 5;
+
+      stressRisk += clamp((stressIndex - 4) * 7, 0, 40);
+      if (activityLevel === 'low') stressRisk += 10;
+      if (activityLevel === 'high') stressRisk += 6;
+      stressRisk = clamp(Math.round(stressRisk), 0, 100);
+
+      const totalRisk = Math.round((waterRisk + stressRisk) / 2);
+
+      updateResult('water', waterRisk, getWaterAdvice(waterRisk));
+      updateResult('stress', stressRisk, getStressAdvice(stressRisk));
+      updateResult('total', totalRisk, getTotalAdvice(totalRisk));
+    }
+
+    function updateResult(type, score, advice) {
+      document.getElementById(type + 'Score').textContent = score + '점';
+
+      if (score < 35) {
+        setLevel(type + 'Level', '안정', 'safe');
+      } else if (score < 70) {
+        setLevel(type + 'Level', '주의', 'caution');
+      } else {
+        setLevel(type + 'Level', '위험', 'danger');
+      }
+
+      document.getElementById(type + 'Advice').textContent = advice;
+    }
+
+    function getWaterAdvice(score) {
+      if (score < 35) {
+        return '수분 항상성이 비교적 안정적입니다. 현재 수분 섭취와 재처리 단계를 유지합니다.';
+      }
+      if (score < 70) {
+        return '수분 부족 가능성이 있습니다. 수분 보충과 전해질 섭취를 권고하고, 폐수 재처리 단계를 한 단계 강화합니다.';
+      }
+      return '수분 항상성 위험이 높습니다. 수분 보충 알림을 즉시 제공하고, 다단계 수분 재처리 과정을 강화합니다.';
+    }
+
+    function getStressAdvice(score) {
+      if (score < 35) {
+        return '스트레스 지표가 비교적 안정적입니다. 현재 활동과 수면 리듬을 유지합니다.';
+      }
+      if (score < 70) {
+        return '스트레스 상승 가능성이 있습니다. 휴식 알림, 조명 완화, 호흡 안정 활동을 제안합니다.';
+      }
+      return '스트레스 과부하 가능성이 높습니다. 조명과 소음 자극을 줄이고, 즉시 휴식과 안정 활동을 권고합니다.';
+    }
+
+    function getTotalAdvice(score) {
+      if (score < 35) {
+        return '감지–판단–반응–재평가 과정에서 전체 상태가 안정적으로 판단됩니다.';
+      }
+      if (score < 70) {
+        return '일부 지표가 정상 범위를 벗어났습니다. BIOMES가 보조 반응을 제안하고 이후 데이터를 재평가합니다.';
+      }
+      return '수분 또는 스트레스 항상성 위험이 큽니다. 즉각적인 보조 반응을 실행한 뒤 상태를 다시 측정해야 합니다.';
+    }
+
+    function loadSafeData() {
+      document.getElementById('waterIntake').value = 2100;
+      document.getElementById('urineVolume').value = 1300;
+      document.getElementById('urineConcentration').value = 3;
+      document.getElementById('wasteContamination').value = 3;
+      document.getElementById('heartRate').value = 74;
+      document.getElementById('sleepHours').value = 7.5;
+      document.getElementById('stressIndex').value = 3;
+      document.getElementById('activityLevel').value = 'normal';
+      analyzeBiomes();
+    }
+
+    function loadRiskData() {
+      document.getElementById('waterIntake').value = 900;
+      document.getElementById('urineVolume').value = 500;
+      document.getElementById('urineConcentration').value = 9;
+      document.getElementById('wasteContamination').value = 8;
+      document.getElementById('heartRate').value = 108;
+      document.getElementById('sleepHours').value = 4;
+      document.getElementById('stressIndex').value = 9;
+      document.getElementById('activityLevel').value = 'low';
+      analyzeBiomes();
+    }
+
+    function resetData() {
+      document.getElementById('waterIntake').value = 1400;
+      document.getElementById('urineVolume').value = 800;
+      document.getElementById('urineConcentration').value = 8;
+      document.getElementById('wasteContamination').value = 7;
+      document.getElementById('heartRate').value = 92;
+      document.getElementById('sleepHours').value = 5;
+      document.getElementById('stressIndex').value = 8;
+      document.getElementById('activityLevel').value = 'normal';
+      analyzeBiomes();
+    }
+
+    analyzeBiomes();
+  </script>
+</body>
+</html>
